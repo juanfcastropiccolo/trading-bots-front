@@ -1,5 +1,9 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://web-production-1c0c8.up.railway.app/api/:path*" },
+    { "source": "/ws/:path*", "destination": "https://web-production-1c0c8.up.railway.app/ws/:path*" }
+  ]
 }
