@@ -13,7 +13,7 @@ import {
   type ISeriesMarkersPluginApi,
 } from "lightweight-charts";
 import type { TickData } from "../App";
-import { API_BASE } from "../config";
+import { API_BASE, authFetch } from "../config";
 
 interface Props {
   ticks: TickData[];
@@ -230,7 +230,7 @@ export default function CandlestickChart({ ticks, symbol }: Props) {
     let cancelled = false;
     const pair = (symbol ?? "BTC/USDT").replace("/", "-");
     setHistoricalCandles([]);
-    fetch(`${API_BASE}/api/market/${pair}/candles?timeframe=${timeframe}&limit=500`)
+    authFetch(`${API_BASE}/api/market/${pair}/candles?timeframe=${timeframe}&limit=500`)
       .then((r) => r.json())
       .then((data: Candle[]) => {
         if (!cancelled) {

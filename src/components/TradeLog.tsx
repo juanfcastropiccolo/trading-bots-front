@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { TickData } from "../App";
-import { API_BASE } from "../config";
+import { API_BASE, authFetch } from "../config";
 
 interface Props {
   ticks: TickData[];
@@ -27,7 +27,7 @@ export default function TradeLog({ ticks, agentId }: Props) {
 
   useEffect(() => {
     if (!agentId) return;
-    fetch(`${API_BASE}/api/agents/${agentId}/trades?limit=50`)
+    authFetch(`${API_BASE}/api/agents/${agentId}/trades?limit=50`)
       .then((r) => r.json())
       .then((data: HistoricalTrade[]) => setHistoricalTrades(data))
       .catch(() => {});

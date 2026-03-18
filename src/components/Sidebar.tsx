@@ -11,9 +11,10 @@ interface Props {
   onDeleteAgent: (id: number) => void;
   onAddFunds: (id: number) => void;
   onToggleAgent: (id: number) => void;
+  isAdmin?: boolean;
 }
 
-export default function Sidebar({ agents, selectedId, onSelect, onAddAgent, onDeleteAgent, onAddFunds, onToggleAgent }: Props) {
+export default function Sidebar({ agents, selectedId, onSelect, onAddAgent, onDeleteAgent, onAddFunds, onToggleAgent, isAdmin = true }: Props) {
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === "true";
@@ -100,6 +101,7 @@ export default function Sidebar({ agents, selectedId, onSelect, onAddAgent, onDe
                       </span>
                     </div>
                   </div>
+                  {isAdmin && (
                   <div className="flex items-center gap-0.5 shrink-0">
                     <button
                       onClick={(e) => handleToggle(e, agent.id)}
@@ -135,6 +137,7 @@ export default function Sidebar({ agents, selectedId, onSelect, onAddAgent, onDe
                       </button>
                     )}
                   </div>
+                  )}
                 </div>
               )}
             </div>
@@ -142,6 +145,7 @@ export default function Sidebar({ agents, selectedId, onSelect, onAddAgent, onDe
         })}
 
         {/* Add agent — inline after last agent */}
+        {isAdmin && (
         <button
           onClick={onAddAgent}
           className={`mx-1 mt-1 py-2 rounded text-sm font-medium transition-colors flex items-center justify-center gap-1.5 w-[calc(100%-0.5rem)] bg-gray-800/50 text-gray-500 hover:bg-blue-600/20 hover:text-blue-400 ${collapsed ? "px-1" : "px-2"}`}
@@ -152,6 +156,7 @@ export default function Sidebar({ agents, selectedId, onSelect, onAddAgent, onDe
           </svg>
           {!collapsed && <span>Add Agent</span>}
         </button>
+        )}
       </div>
 
     </div>

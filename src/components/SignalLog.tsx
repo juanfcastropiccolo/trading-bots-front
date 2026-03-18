@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { TickData } from "../App";
-import { API_BASE } from "../config";
+import { API_BASE, authFetch } from "../config";
 
 interface Props {
   ticks: TickData[];
@@ -36,7 +36,7 @@ export default function SignalLog({ ticks, agentId }: Props) {
     if (!agentId) return;
     setHistoricalSignals([]);
     setHasMore(true);
-    fetch(`${API_BASE}/api/agents/${agentId}/signals?limit=${PAGE_SIZE}&offset=0`)
+    authFetch(`${API_BASE}/api/agents/${agentId}/signals?limit=${PAGE_SIZE}&offset=0`)
       .then((r) => r.json())
       .then((data: HistoricalSignal[]) => {
         setHistoricalSignals(data);
@@ -50,7 +50,7 @@ export default function SignalLog({ ticks, agentId }: Props) {
     if (!agentId || loading || !hasMore) return;
     setLoading(true);
     const offset = historicalSignals.length;
-    fetch(`${API_BASE}/api/agents/${agentId}/signals?limit=${PAGE_SIZE}&offset=${offset}`)
+    authFetch(`${API_BASE}/api/agents/${agentId}/signals?limit=${PAGE_SIZE}&offset=${offset}`)
       .then((r) => r.json())
       .then((data: HistoricalSignal[]) => {
         setHistoricalSignals((prev) => [...prev, ...data]);

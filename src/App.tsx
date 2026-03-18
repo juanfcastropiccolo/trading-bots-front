@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useWebSocket } from "./hooks/useWebSocket";
-import { API_BASE } from "./config";
+import { API_BASE, authFetch } from "./config";
+import { useAuth } from "./hooks/useAuth";
 import Dashboard from "./components/Dashboard";
 import StatusBar from "./components/StatusBar";
 import Sidebar from "./components/Sidebar";
 import AddAgentModal from "./components/AddAgentModal";
 import RefreshButton from "./components/RefreshButton";
+import LoginPage from "./components/LoginPage";
 
 export interface TickData {
   agent_id: number;
@@ -55,6 +57,7 @@ export interface AgentData {
 }
 
 export default function App() {
+  const { user, loading, logout } = useAuth();
   const [agents, setAgents] = useState<AgentData[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<number | null>(null);
   const [ticksByAgent, setTicksByAgent] = useState<Record<number, TickData[]>>({});
@@ -64,8 +67,10 @@ export default function App() {
   const selectedAgentIdRef = useRef(selectedAgentId);
   selectedAgentIdRef.current = selectedAgentId;
 
+  const isAdmin = user?.role === "admin";
+
   const fetchAgents = useCallback(() => {
-    fetch(`${API_BASE}/api/agents`)
+    authFetch(`${API_BASE}/api/agents`)
       .then((r) => r.json())
       .then((data: AgentData[]) => {
         setAgents(data);
@@ -134,7 +139,7 @@ export default function App() {
 
   const handleAddAgent = useCallback(async (data: Record<string, unknown>) => {
     try {
-      const res = await fetch(`${API_BASE}/api/agents`, {
+      const res = await authFetch(`${API_BASE}/api/agents`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -150,7 +155,7 @@ export default function App() {
 
   const handleDeleteAgent = useCallback(async (id: number) => {
     try {
-      const res = await fetch(`${API_BASE}/api/agents/${id}`, { method: "DELETE" });
+      const res = await authFetch(`${API_BASE}/api/agents/${id}`, { method: "DELETE" });
       if (res.ok) {
         setAgents((prev) => prev.filter((a) => a.id !== id));
         setSelectedAgentId((prev) => {
@@ -166,7 +171,7 @@ export default function App() {
 
   const handleToggleAgent = useCallback(async (id: number) => {
     try {
-      const res = await fetch(`${API_BASE}/api/agents/${id}/toggle`, { method: "PATCH" });
+      const res = await authFetch(`${API_BASE}/api/agents/${id}/toggle`, { method: "PATCH" });
       if (res.ok) {
         const updated: AgentData = await res.json();
         setAgents((prev) => prev.map((a) => (a.id === id ? updated : a)));
@@ -180,7 +185,7 @@ export default function App() {
     const amount = parseFloat(input);
     if (isNaN(amount) || amount <= 0) return;
     try {
-      const res = await fetch(`${API_BASE}/api/agents/${id}/add-funds`, {
+      const res = await authFetch(`${API_BASE}/api/agents/${id}/add-funds`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),
@@ -191,6 +196,18 @@ export default function App() {
       }
     } catch {}
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <span className="text-gray-500 text-sm">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
@@ -207,6 +224,21 @@ export default function App() {
             interval={autoRefreshInterval}
             onIntervalChange={setAutoRefreshInterval}
           />
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-gray-400">{user.username}</span>
+            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+              isAdmin ? "bg-blue-900/50 text-blue-400" : "bg-gray-700 text-gray-400"
+            }`}>
+              {user.role.toUpperCase()}
+            </span>
+            <button
+              onClick={logout}
+              className="text-gray-500 hover:text-gray-300 transition-colors text-xs"
+              title="Logout"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
       <main className="flex-1 flex overflow-auto">
@@ -218,6 +250,7 @@ export default function App() {
           onDeleteAgent={handleDeleteAgent}
           onAddFunds={handleAddFunds}
           onToggleAgent={handleToggleAgent}
+          isAdmin={isAdmin}
         />
         <div className="flex-1 overflow-auto">
           <Dashboard agent={selectedAgent} ticks={selectedTicks} />
