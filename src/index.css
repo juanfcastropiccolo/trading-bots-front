@@ -1,3 +1,21 @@
 @import "tailwindcss";
 @import "react-grid-layout/css/styles.css";
 @import "react-resizable/css/styles.css";
+
+/* Animated value flash effects */
+@keyframes flash-up {
+  0% { color: inherit; }
+  20% { color: #4ade80; }
+  100% { color: inherit; }
+}
+@keyframes flash-down {
+  0% { color: inherit; }
+  20% { color: #f87171; }
+  100% { color: inherit; }
+}
+.animate-flash-up {
+  animation: flash-up 0.6s ease-out;
+}
+.animate-flash-down {
+  animation: flash-down 0.6s ease-out;
+}

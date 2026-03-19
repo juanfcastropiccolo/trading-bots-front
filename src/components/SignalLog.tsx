@@ -31,18 +31,23 @@ export default function SignalLog({ ticks, agentId }: Props) {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch initial page
+  // Fetch initial page — don't clear until new data arrives
   useEffect(() => {
     if (!agentId) return;
-    setHistoricalSignals([]);
+    let cancelled = false;
     setHasMore(true);
     authFetch(`${API_BASE}/api/agents/${agentId}/signals?limit=${PAGE_SIZE}&offset=0`)
       .then((r) => r.json())
       .then((data: HistoricalSignal[]) => {
-        setHistoricalSignals(data);
-        setHasMore(data.length >= PAGE_SIZE);
+        if (!cancelled) {
+          setHistoricalSignals(data);
+          setHasMore(data.length >= PAGE_SIZE);
+        }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setHistoricalSignals([]);
+      });
+    return () => { cancelled = true; };
   }, [agentId]);
 
   // Load more when scrolling to bottom

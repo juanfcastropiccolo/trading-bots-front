@@ -1,4 +1,5 @@
 import type { AgentData, TickData } from "../App";
+import AnimatedValue from "./AnimatedValue";
 
 interface Props {
   agent: AgentData;
@@ -10,8 +11,7 @@ export default function AgentCard({ agent, lastTick }: Props) {
   const price = lastTick?.price ?? 0;
   const posQty = agent.position_qty ?? 0;
   const posValue = posQty * price;
-  const coinSymbol = agent.symbol.split("/")[0]; // "BTC" from "BTC/USDT"
-  // More decimals for tiny fractions (BTC), fewer for larger holdings (ADA)
+  const coinSymbol = agent.symbol.split("/")[0];
   const qtyDecimals = posQty === 0 ? 0 : posQty < 0.001 ? 8 : posQty < 1 ? 6 : posQty < 100 ? 4 : 2;
 
   return (
@@ -32,14 +32,27 @@ export default function AgentCard({ agent, lastTick }: Props) {
       <div className="space-y-2">
         <div className="flex justify-between items-baseline">
           <span className="text-xs text-gray-500">Price</span>
-          <span className="text-sm font-mono font-semibold">${price.toLocaleString()}</span>
+          <AnimatedValue
+            value={price}
+            format={(v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            className="text-sm font-mono font-semibold"
+            flashColors
+          />
         </div>
         <div className="flex justify-between items-baseline">
           <span className="text-xs text-gray-500">Equity</span>
           <div className="text-right">
-            <span className="text-sm font-mono font-semibold">${agent.equity.toFixed(2)}</span>
+            <AnimatedValue
+              value={agent.equity}
+              format={(v) => `$${v.toFixed(2)}`}
+              className="text-sm font-mono font-semibold"
+              flashColors
+            />
             <div className="flex items-center gap-2 justify-end text-xs text-gray-500 font-mono">
-              <span>${agent.cash.toFixed(2)} USD</span>
+              <AnimatedValue
+                value={agent.cash}
+                format={(v) => `$${v.toFixed(2)} USD`}
+              />
               <span className="text-gray-700">+</span>
               <span className={posQty > 0 ? "text-blue-400" : ""}>
                 {posQty > 0 ? posQty.toFixed(qtyDecimals) : "0"} {coinSymbol}
@@ -50,10 +63,13 @@ export default function AgentCard({ agent, lastTick }: Props) {
         </div>
         <div className="flex justify-between items-baseline">
           <span className="text-xs text-gray-500">PnL</span>
-          <span className={`text-sm font-mono font-semibold ${pnlColor}`}>
-            {agent.total_pnl >= 0 ? "+" : ""}${agent.total_pnl.toFixed(2)}
-            <span className="text-xs ml-1 text-gray-500">({agent.total_pnl_pct.toFixed(2)}%)</span>
-          </span>
+          <AnimatedValue
+            value={agent.total_pnl}
+            format={(v) => `${v >= 0 ? "+" : ""}$${v.toFixed(2)}`}
+            className={`text-sm font-mono font-semibold ${pnlColor}`}
+            flashColors
+          />
+          <span className="text-xs ml-1 text-gray-500 font-mono">({agent.total_pnl_pct.toFixed(2)}%)</span>
         </div>
       </div>
     </div>

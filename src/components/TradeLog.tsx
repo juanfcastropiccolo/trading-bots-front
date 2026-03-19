@@ -27,10 +27,16 @@ export default function TradeLog({ ticks, agentId }: Props) {
 
   useEffect(() => {
     if (!agentId) return;
+    let cancelled = false;
     authFetch(`${API_BASE}/api/agents/${agentId}/trades?limit=50`)
       .then((r) => r.json())
-      .then((data: HistoricalTrade[]) => setHistoricalTrades(data))
-      .catch(() => {});
+      .then((data: HistoricalTrade[]) => {
+        if (!cancelled) setHistoricalTrades(data);
+      })
+      .catch(() => {
+        if (!cancelled) setHistoricalTrades([]);
+      });
+    return () => { cancelled = true; };
   }, [agentId]);
 
   // Build unified list

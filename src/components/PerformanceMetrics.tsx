@@ -1,4 +1,5 @@
 import type { AgentData } from "../App";
+import AnimatedValue from "./AnimatedValue";
 
 interface Props {
   agent: AgentData;
@@ -24,9 +25,25 @@ export default function PerformanceMetrics({ agent }: Props) {
         <Metric label="W / L" value={`${agent.win_count} / ${agent.loss_count}`} />
         <Metric label="Profit Factor" value={profitFactor} />
         <Metric label="Max Drawdown" value={`${(agent.max_drawdown * 100).toFixed(2)}%`} warn={agent.max_drawdown > 0.1} />
-        <Metric label="Cash" value={`$${agent.cash.toFixed(2)}`} />
+        <div>
+          <p className="text-xs text-gray-500">Cash</p>
+          <AnimatedValue
+            value={agent.cash}
+            format={(v) => `$${v.toFixed(2)}`}
+            className="text-sm font-mono font-semibold text-gray-200"
+            flashColors
+          />
+        </div>
         <Metric label="Budget" value={`$${agent.budget_usd.toFixed(2)}`} />
-        <Metric label="Equity" value={`$${agent.equity.toFixed(2)}`} />
+        <div>
+          <p className="text-xs text-gray-500">Equity</p>
+          <AnimatedValue
+            value={agent.equity}
+            format={(v) => `$${v.toFixed(2)}`}
+            className="text-sm font-mono font-semibold text-gray-200"
+            flashColors
+          />
+        </div>
       </div>
     </div>
   );

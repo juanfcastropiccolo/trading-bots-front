@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { AgentData } from "../App";
+import AnimatedValue from "./AnimatedValue";
 
 const STORAGE_KEY = "sidebar-collapsed";
 
@@ -96,9 +97,12 @@ export default function Sidebar({ agents, selectedId, onSelect, onAddAgent, onDe
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 pl-3">
                       <span className="text-xs text-gray-500">{symbolShort}</span>
-                      <span className={`text-xs font-mono ${pnlColor}`}>
-                        {pnl >= 0 ? "+" : ""}{pnl.toFixed(2)}
-                      </span>
+                      <AnimatedValue
+                        value={pnl}
+                        format={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}`}
+                        className={`text-xs font-mono ${pnlColor}`}
+                        flashColors
+                      />
                     </div>
                   </div>
                   {isAdmin && (
