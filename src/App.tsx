@@ -71,8 +71,12 @@ export default function App() {
 
   const fetchAgents = useCallback(() => {
     authFetch(`${API_BASE}/api/agents`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
       .then((data: AgentData[]) => {
+        if (!Array.isArray(data)) return;
         setAgents(data);
         if (data.length > 0 && selectedAgentIdRef.current === null) {
           setSelectedAgentId(data[0].id);
