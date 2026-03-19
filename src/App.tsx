@@ -85,8 +85,8 @@ export default function App() {
       .catch(() => {});
   }, []);
 
-  // Fetch agents on mount
-  useEffect(() => { fetchAgents(); }, [fetchAgents]);
+  // Fetch agents on mount (only when authenticated)
+  useEffect(() => { if (user) fetchAgents(); }, [fetchAgents, user]);
 
   // Auto-refresh interval
   useEffect(() => {

@@ -10,7 +10,6 @@ export function authFetch(url: string, options?: RequestInit): Promise<Response>
   return fetch(url, { ...options, headers }).then((res) => {
     if (res.status === 401) {
       localStorage.removeItem("auth_token");
-      window.location.reload();
     }
     return res;
   });
